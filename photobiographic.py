@@ -1,45 +1,71 @@
-# import modules
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+"""
+This add on was initially develope like a script for generate a csv archive
+to import in a previous create deck, actually this is an add on in menu of
+Anki, and browse, create csv and create/import/actualized deck for improve
+the episodic memory in humans by re-learn photos of past episodes of own life.
+
+Then this become in a peg system who work like a chain of clues where you can
+found a semantic hook for call and reinforce episodic memory.
+
+The initial objective is help to people with mental/brain problems and improve
+the social and emotional skills in general.
+
+Original idea: Marco García Baturan
+Developers: Marco garcía Baturan, José Carlos "Reset Reboot" Cuevas Albadalejo
+Date: 2017/04/05/03
+Place: Spain
+Licence: Open Source, Free, GNU Licence, SLUC.
+"""
+
+# Import for Anki
 from aqt import mw
 from aqt.qt import *
 from aqt import editor
 from anki import notes
 from anki.importing import TextImporter
+
+# import for sys
 import sys
-from PyQt4 import QtCore, QtGui, uic
 import os
 from os import listdir
 from os.path import isfile, join
 
-#class main window
-# Cargar nuestro archivo .ui
-form_class = uic.loadUiType("dialog.ui")[0]
+# import for Qt
+from PyQt4 import QtCore, QtGui, uic
+from PyQt4.QtGui import QAction
+import pbmenu
+# charge archive ui
 
 
-# charge .ui archive
-class MyWindowClass(QtGui.QMainWindow):
-    def __init__(self, parent = None):
-        QtGui.QMainWindow.__init__(self, parent)
+# Main class
+class pbfunction(QDialog):
+    def __init__(self):
+        pbmenu.Ui_Dialog
+        QDialog.__init__(self, mw)
         self.setupUi(self)
-        self.btnfolder.clicked.connect(self.btnfolder_clicked)
-        self.btnimport.clicked.connect(self.btnimport_clicked)
-        self.btncancel.clicked.connect(self.btncancel_clicked)
-        self.lineRoot = None
-        self.exec_()
+        self.btnBrowse.clicked.connect(self.btnBrowse_clicked)
+        self.btnImport.clicked.connect(self.btnImport_clicked)
+        # The path to the media directory chosen by user
+        self.mediaDir = None
 
-    # function button folder
-    def btnfolder_clicked(self):
+    # Event button btnBrowse
+    def btnBrowse_clicked(self):
         """Show the directory selection dialog."""
-        path = unicode(QFileDialog.getExistingDirectory(mw, "Import Directory"))
-        if not path:
+        pathf = unicode(
+            QtGui.QFileDialog.getExistingDirectory(mw, "Select Directory"))
+        if not pathf:
             return
-        self.lineRoot = path
-        self.form.mediaDir.setText(self.mediaDir)
-        self.form.mediaDir.setStyleSheet("")
+        self.mediaDir = pathf
+        self.mediaDir.setText(self.mediaDir)
+        self.mediaDir.setStyleSheet("")
+        self.browseLine.setText(str(pathf))
 
-    # funtion button ok
-    def btnimport_clicked(self):
+    # Event button btnImport
+    def btnImport_clicked(self, pathf):
         # this get path, list and ordered images from directory
-        path = self.lineEdit #raw_input('Introduce the path: ')
+        path = pathf
         directory = [f for f in listdir(path) if isfile(join(path, f))]  # get list from dir, empty because in dir
         directory.sort(key=lambda x: os.path.getmtime(x))  # this order by date
         images = ["<img src='{}/{}'>".format(path, elem) for elem in directory]  # give format html for flashcard
@@ -49,7 +75,7 @@ class MyWindowClass(QtGui.QMainWindow):
                 f.write(",".join([previous_img, image]) + "\n")
                 previous_img = image
         file = path + 'output.csv'
-        #funtion found or create deck
+        # funtion found or create deck
         did = mw.col.decks.id('Photobiographic')
         mw.col.decks.select(did)
         # set note type for deck
@@ -63,11 +89,13 @@ class MyWindowClass(QtGui.QMainWindow):
         ti.run()
 
 
-
-#function call main window
+# function call main window
 # create a new menu item, "test"
 action = QAction("Photobiographic", mw)
 # set it to call testFunction when it's clicked
-action.triggered.connect(MyWindowClass)
+action.triggered.connect(pbfunction)
 # and add it to the tools menu
 mw.form.menuTools.addAction(action)
+
+
+
