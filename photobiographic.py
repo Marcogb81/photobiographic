@@ -19,17 +19,20 @@ Place: Spain
 Licence: Open Source, Free, GNU Licence, SLUC.
 """
 
-# Import for Anki
+# Import for system
 import os
 from os import listdir
 from os.path import isfile, join
+# Import for Qt
 from PyQt4.QtGui import QAction, QDialog
-from anki.importing import TextImporter
+# Import for Qt and Anki
 from aqt import mw
 from aqt.qt import *
 from aqt import editor
-from anki import notes
+from aqt.utils import showInfo
+# Import for get the GUI
 from pbmenu import *
+
 
 
 # Main class
@@ -40,7 +43,8 @@ class pbfunction(QDialog, Ui_Dialog):
         self.btnBrowse.clicked.connect(self.btnBrowse_clicked)
         self.btnImport.clicked.connect(self.btnImport_clicked)
         # The path to the media directory chosen by user
-        self.browseLine = None
+        self.browseLine
+        self.pathf = None
         self.exec_()
 
     # Event button btnBrowse
@@ -49,24 +53,24 @@ class pbfunction(QDialog, Ui_Dialog):
         pathf = unicode(QtGui.QFileDialog.getExistingDirectory(mw, "Select Directory"))
         if not pathf:
             return
-        self.browseLine = pathf
-        self.browseLine.setText(self.browseLine)
+        self.browseLine.setText(pathf)
+        self.pathf = pathf
         self.browseLine.setStyleSheet("")
 
     # Event button btnImport
-    def btnImport_clicked(self, pathf):
+    def btnImport_clicked(self):
         # this get path, list and ordered images from directory
-        path = pathf
-        directory = [f for f in listdir(path) if isfile(join(path, f))]  # get list from dir, empty because in dir
+        pathf = self.pathf
+        directory = [f for f in listdir(pathf) if isfile(join(pathf, f))]  # get list from dir, empty because in dir
         directory.sort(key=lambda x: os.path.getmtime(x))  # this order by date
-        images = ["<img src='{}/{}'>".format(path, elem) for elem in directory]  # give format html for flashcard
+        images = ["<img src='{}/{}'>".format(pathf, elem) for elem in directory]  # give format html for flashcard
         previous_img = images[0]  # variable for array of images
-        with open('output.csv', 'w') as f:
+        with open(os.path.join(pathf, 'output.csv'), 'w') as f:
             for image in images[1:]:
                 f.write(",".join([previous_img, image]) + "\n")
                 previous_img = image
-        file = path + 'output.csv'
-        # funtion found or create deck
+        pathf2 = pathf + '/' + 'output.csv'
+        # function found or create deck
         did = mw.col.decks.id('Photobiographic')
         mw.col.decks.select(did)
         # set note type for deck
@@ -74,10 +78,15 @@ class pbfunction(QDialog, Ui_Dialog):
         deck = mw.col.decks.get(did)
         deck['mid'] = m['id']
         mw.col.decks.save(deck)
-        # import into the collection
-        ti = TextImporter(mw.col, file)
-        ti.initMapping()
-        ti.run()
+        # import into the collection by instructions
+        showInfo("""Your deck was created. Please, proceed to reset Anki and follow the instructions :
+            1. Select the deck Photobiographic.
+            2. Archive > import.
+            3. Select the folder of your photos.
+            4. Double click in archive output.csv.
+            5. Validate option 'Allow HTML in fields'.
+            6. Click in Import.
+            7. Enjoy your memories.""")
 
 
 # function call main window
