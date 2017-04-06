@@ -20,35 +20,28 @@ Licence: Open Source, Free, GNU Licence, SLUC.
 """
 
 # Import for Anki
-from aqt import mw
-from aqt.qt import *
-from aqt import editor
-from anki import notes
-from anki.importing import TextImporter
-
-# import for sys
-import sys
 import os
 from os import listdir
 from os.path import isfile, join
 
-# import for Qt
-from PyQt4 import QtCore, QtGui, uic
-from PyQt4.QtGui import QAction
-import pbmenu
-# charge archive ui
+from PyQt4.QtGui import QAction, QDialog
+from anki.importing import TextImporter
+from aqt import mw
+from aqt.qt import *
+from aqt import editor
+from anki import notes
+from pbmenu import *
 
 
 # Main class
-class pbfunction(QDialog):
+class pbfunction(QDialog, Ui_Dialog):
     def __init__(self):
-        pbmenu.Ui_Dialog
         QDialog.__init__(self, mw)
-        self.setupUi(self)
-        self.btnBrowse.clicked.connect(self.btnBrowse_clicked)
-        self.btnImport.clicked.connect(self.btnImport_clicked)
+        self.form.setupUi(self)
+        self.form.btnBrowse.clicked.connect(self.btnBrowse_clicked)
+        self.form.btnImport.clicked.connect(self.btnImport_clicked)
         # The path to the media directory chosen by user
-        self.mediaDir = None
+        self.form.browseLine = None
 
     # Event button btnBrowse
     def btnBrowse_clicked(self):
@@ -57,10 +50,9 @@ class pbfunction(QDialog):
             QtGui.QFileDialog.getExistingDirectory(mw, "Select Directory"))
         if not pathf:
             return
-        self.mediaDir = pathf
-        self.mediaDir.setText(self.mediaDir)
-        self.mediaDir.setStyleSheet("")
-        self.browseLine.setText(str(pathf))
+        self.form.browseLine.setText(self.browseLine)
+        self.form.browseLine.setStyleSheet("")
+        self.form.browseLine.setText(str(pathf))
 
     # Event button btnImport
     def btnImport_clicked(self, pathf):
@@ -94,6 +86,7 @@ class pbfunction(QDialog):
 action = QAction("Photobiographic", mw)
 # set it to call testFunction when it's clicked
 action.triggered.connect(pbfunction)
+# mw.connect(action, pbfunction)
 # and add it to the tools menu
 mw.form.menuTools.addAction(action)
 
