@@ -23,7 +23,6 @@ Licence: Open Source, Free, GNU Licence, SLUC.
 import os
 from os import listdir
 from os.path import isfile, join
-
 from PyQt4.QtGui import QAction, QDialog
 from anki.importing import TextImporter
 from aqt import mw
@@ -37,22 +36,22 @@ from pbmenu import *
 class pbfunction(QDialog, Ui_Dialog):
     def __init__(self):
         QDialog.__init__(self, mw)
-        self.form.setupUi(self)
-        self.form.btnBrowse.clicked.connect(self.btnBrowse_clicked)
-        self.form.btnImport.clicked.connect(self.btnImport_clicked)
+        self.setupUi(self)
+        self.btnBrowse.clicked.connect(self.btnBrowse_clicked)
+        self.btnImport.clicked.connect(self.btnImport_clicked)
         # The path to the media directory chosen by user
-        self.form.browseLine = None
+        self.browseLine = None
+        self.exec_()
 
     # Event button btnBrowse
-    def btnBrowse_clicked(self):
+    def btnBrowse_clicked(self, Ui_Dialog):
         """Show the directory selection dialog."""
-        pathf = unicode(
-            QtGui.QFileDialog.getExistingDirectory(mw, "Select Directory"))
+        pathf = unicode(QtGui.QFileDialog.getExistingDirectory(mw, "Select Directory"))
         if not pathf:
             return
-        self.form.browseLine.setText(self.browseLine)
-        self.form.browseLine.setStyleSheet("")
-        self.form.browseLine.setText(str(pathf))
+        self.browseLine = pathf
+        self.browseLine.setText(self.browseLine)
+        self.browseLine.setStyleSheet("")
 
     # Event button btnImport
     def btnImport_clicked(self, pathf):
@@ -84,9 +83,8 @@ class pbfunction(QDialog, Ui_Dialog):
 # function call main window
 # create a new menu item, "test"
 action = QAction("Photobiographic", mw)
-# set it to call testFunction when it's clicked
+# set it to call pbfunction when it's clicked
 action.triggered.connect(pbfunction)
-# mw.connect(action, pbfunction)
 # and add it to the tools menu
 mw.form.menuTools.addAction(action)
 
