@@ -62,8 +62,8 @@ class pbfunction(QDialog, Ui_Dialog):
         # this get path, list and ordered images from directory
         pathf = self.pathf
         directory = [f for f in listdir(pathf) if isfile(join(pathf, f))]  # get list from dir, empty because in dir
-        directory.sort(key=lambda x: os.path.getmtime(x))  # this order by date
-        images = ["<img src='{}/{}'>".format(pathf, elem) for elem in directory]  # give format html for flashcard
+        directory.sort(key=lambda x: os.path.getmtime(os.path.join(pathf, x)))  # this order by date
+        images = ["<img src='{}/{}'>".format(pathf.encode('utf-8'), elem.encode('utf-8')) for elem in directory]  # give format html for flashcard
         previous_img = images[0]  # variable for array of images
         with open(os.path.join(pathf, 'output.csv'), 'w') as f:
             for image in images[1:]:
