@@ -64,12 +64,14 @@ class pbfunction(QDialog, Ui_Dialog):
         directory = [f for f in listdir(pathf) if isfile(join(pathf, f))]  # get list from dir, empty because in dir
         directory.sort(key=lambda x: os.path.getmtime(os.path.join(pathf, x)))  # this order by date
         images = ["<img src='{}/{}' WIDTH=180 HEIGHT=180 >".format(pathf.encode('utf-8'), elem.encode('utf-8')) for elem in directory]  # give format html for flashcard
-        previous_img = images[0]  # variable for array of images
+        previous_img = images[0]  # variable for array of images with specific format of size
         with open(os.path.join(pathf, 'output.csv'), 'w') as f:
+            """Create or open a file in CSV format, where store the lines with
+            reference in archive"""
             for image in images[1:]:
-                f.write(",".join([previous_img, image]) + "\n")
+                f.write(",".join([previous_img, image]) + "\n") # create side 1 and 2 of card,and pass img of side 2 to side 1 of next card
                 previous_img = image
-        pathf2 = pathf + '/' + 'output.csv'
+        pathf2 = pathf + '/' + 'output.csv' # close and put de output file in the same folder of photos
         # function found or create deck
         did = mw.col.decks.id('Photobiographic')
         mw.col.decks.select(did)
